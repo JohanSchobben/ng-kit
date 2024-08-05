@@ -58,7 +58,7 @@ export class TooltipDirective implements OnDestroy, OnChanges, OnInit {
   public ngOnInit() {
     const mouseenter$ = fromEvent<MouseEvent>(this.el.nativeElement, "mouseenter");
     const mouseLeave$ = fromEvent<MouseEvent>(this.el.nativeElement, "mouseleave");
-    const delay = this.delay ?? this.options.delay ?? 0;
+    const delay = this.delay ?? this.options?.delay ?? 0;
 
     mouseenter$
       .pipe(
@@ -92,7 +92,7 @@ export class TooltipDirective implements OnDestroy, OnChanges, OnInit {
   }
 
   public get className(): string {
-    return this._className ?? this.options.className ?? '';
+    return this._className ?? this.options?.className ?? '';
   }
 
   @Input("kitTooltipClass")
@@ -136,12 +136,10 @@ export class TooltipDirective implements OnDestroy, OnChanges, OnInit {
 
 
     this.overlayRef.detachments().pipe(takeUntil(this.destroy)).subscribe(() => {
-      if (this.overlayRef?.hasAttached()) {
-        this.overlayRef?.detach()
-      }
+        this.hide();
     });
 
-    this.overlayRef.outsidePointerEvents().pipe(takeUntil(this.destroy)).subscribe((value) => {
+    this.overlayRef.outsidePointerEvents().pipe(takeUntil(this.destroy)).subscribe(() => {
       if (this.overlayRef?.hasAttached()) {
         this.hide();
       }
@@ -154,9 +152,7 @@ export class TooltipDirective implements OnDestroy, OnChanges, OnInit {
         this.hide();
       }
     });
-
     return this.overlayRef;
-
   }
 
 private createPortal(): ComponentPortal<TooltipComponent> {
@@ -167,6 +163,7 @@ private createPortal(): ComponentPortal<TooltipComponent> {
 private hide() {
     if (this.overlayRef?.hasAttached()) {
       this.overlayRef?.detach();
+      this.tooltip = undefined;
     }
 }
 
@@ -174,17 +171,9 @@ private hide() {
     const overlay = this.createOverlay();
     const portal = this.portal ?? this.createPortal();
     const component = overlay.attach(portal);
-    this.tooltip = component.instance;
+    this.tooltip = component.instance as TooltipComponent;
     this.tooltip.message = this._message;
     this.tooltip.tooltipClass = this.className;
-  }
-
-  protected onMouseenter(): void {
-    this.show()
-  }
-
-  protected onMouseleave() {
-    this.hide();
   }
 
   ngOnDestroy() {

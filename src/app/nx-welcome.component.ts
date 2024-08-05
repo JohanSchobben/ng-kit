@@ -1,10 +1,11 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TooltipModule } from 'ng-kit/tooltip';
 
 @Component({
   selector: 'app-nx-welcome',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TooltipModule],
   template: `
     <!--
      * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -431,7 +432,7 @@ import { CommonModule } from '@angular/common';
         <!--  WELCOME  -->
         <div id="welcome">
           <h1>
-            <span> Hello there, </span>
+            <span kitTooltip="Hello World!"> Hello there, </span>
             Welcome ng-kit-app 👋
           </h1>
         </div>
