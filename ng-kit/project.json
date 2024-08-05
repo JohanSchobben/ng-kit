@@ -2,7 +2,7 @@
   "name": "ng-kit",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "ng-kit/src",
-  "prefix": "lib",
+  "prefix": "kit",
   "projectType": "library",
   "tags": [],
   "targets": {
