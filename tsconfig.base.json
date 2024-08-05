@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "ng-kit": ["ng-kit/src/index.ts"]
+      "ng-kit": ["ng-kit/src/index.ts"],
+      "ng-kit/tooltip": ["ng-kit/tooltip/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
