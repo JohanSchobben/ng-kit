@@ -12,6 +12,8 @@ import { Subject } from 'rxjs';
     <div id="host" kitTooltip="Hello world!">Some div</div>
   `
 })
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 class TooltipTestComponent {}
 
 describe('TooltipDirective', () => {
