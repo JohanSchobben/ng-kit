@@ -9,7 +9,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {Overlay, OverlayRef, ScrollDispatcher} from "@angular/cdk/overlay";
-import {fromEvent, map, Subject, switchMap, takeUntil, timer} from "rxjs";
+import { fromEvent, map, merge, Subject, switchMap, takeUntil, timer } from 'rxjs';
 import {hasModifierKey} from "@angular/cdk/keycodes";
 import {TooltipComponent} from "./tooltip.component";
 import {ComponentPortal} from "@angular/cdk/portal";
@@ -56,32 +56,52 @@ export class TooltipDirective implements OnDestroy, OnChanges, OnInit {
   }
 
   public ngOnInit() {
-    const mouseenter$ = fromEvent<MouseEvent>(this.el.nativeElement, "mouseenter");
-    const mouseLeave$ = fromEvent<MouseEvent>(this.el.nativeElement, "mouseleave");
+    const simpleMouseenter$ = fromEvent<MouseEvent>(this.el.nativeElement, "mouseenter");
+    const simpleMouseLeave$ = fromEvent<MouseEvent>(this.el.nativeElement, "mouseleave");
+    const simpleTouchStart$ = fromEvent<TouchEvent>(this.el.nativeElement, "touchstart");
+    const simpleTouchEnd$ = fromEvent<TouchEvent>(this.el.nativeElement, "touchend");
+    const simpleFocus$ = fromEvent<FocusEvent>(this.el.nativeElement, "focus");
+    const simpleBlur$ = fromEvent<FocusEvent>(this.el.nativeElement, "blur");
     const delay = this.delay ?? this.options?.delay ?? 0;
 
-    mouseenter$
+    const mouseenter$ = simpleMouseenter$
       .pipe(
         takeUntil(this.destroy),
-        switchMap((event: MouseEvent) =>
+        switchMap(() =>
           timer(delay)
             .pipe(
-              takeUntil(mouseLeave$),
-              map(() => event)
+              takeUntil(simpleMouseLeave$),
             ))
-      ).subscribe(() => {
+      );
+
+    const touchStart$ = simpleTouchStart$
+      .pipe(
+        takeUntil(this.destroy),
+        switchMap(() =>
+          timer(delay)
+            .pipe(
+              takeUntil(simpleTouchEnd$),
+            ))
+      );
+
+    const focus$ = simpleFocus$
+      .pipe(
+        takeUntil(this.destroy),
+        switchMap(() =>
+          timer(delay)
+            .pipe(
+              takeUntil(simpleBlur$),
+            ))
+      );
+
+    merge(mouseenter$, touchStart$, focus$)
+      .subscribe(() => {
         this.show()
     });
 
-    mouseLeave$
+    merge(simpleBlur$, simpleTouchEnd$, simpleMouseLeave$)
       .pipe(
         takeUntil(this.destroy),
-        switchMap((event: MouseEvent) =>
-          timer(delay)
-            .pipe(
-              takeUntil(mouseenter$),
-              map(() => event)
-            ))
       ).subscribe(() => {
       this.hide();
     });
@@ -168,6 +188,7 @@ private hide() {
 }
 
   private show(): void {
+    if (this.tooltip) return
     const overlay = this.createOverlay();
     const portal = this.portal ?? this.createPortal();
     const component = overlay.attach(portal);
